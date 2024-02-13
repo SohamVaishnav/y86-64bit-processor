@@ -8,11 +8,11 @@ module fetch_tb;
     wire [3:0] rB;
     wire [63:0] valC;
     wire [63:0] valP;
-    wire mem_error;
+    wire imem_error;
     wire func_error;
-    wire halt, nop, just;
+    wire halt, nop;
 
-    fetch M(PC, clk, icode, ifun, rA, rB, valC, valP, mem_error, func_error, halt, nop, just);
+    fetch M(PC, clk, icode, ifun, rA, rB, valC, valP, imem_error, func_error, halt, nop);
 
     initial 
     begin 

@@ -7,10 +7,9 @@ module fetch(
     output reg [3:0] rB,
     output reg [63:0] valC, 
     output reg [63:0] valP,
-    output reg mem_error, 
+    output reg imem_error, 
     output reg func_error,
-    output reg halt, nop, 
-    output reg just
+    output reg halt, nop
 );
     reg [7:0] ROM [1023:0];
     reg [7:0] icode_ifun;
@@ -18,94 +17,18 @@ module fetch(
 
     initial begin 
     //Instruction memory 
-        //halt (0:0)
-        // ROM[0] = 8'b00000000;
-
-        //nop (1:0)
-        // ROM[0] = 8'b00010000;
-
-        //rrmovq (2:0) (1->4)
-        // ROM[0] = 8'b00100000;
-        // ROM[1] = 8'b00010100;
-
-        //irmovq (3:0) (10->3)
-        // ROM[0] = 8'b00110000;
-        // ROM[1] = 8'b11110011;
-        // ROM[2] = 8'b01111011;
-        // ROM[3] = 8'b00110011;
-        // ROM[4] = 8'b00000000;
-        // ROM[5] = 8'b11000100;
-        // ROM[6] = 8'b10101010;
-        // ROM[7] = 8'b00000000;
-        // ROM[8] = 8'b00100000;
-        // ROM[9] = 8'b10000110; 
-
-        //rmmovq (4:0) (2->11)
-        // ROM[0] = 8'b01000000;
-        // ROM[1] = 8'b00101011;
-
-        //mrmovq (5:0) (4->6)
-        // ROM[0] = 8'b01010000;
-        // ROM[1] = 8'b01000110;
-
-        //Opq (6:x) (5 and 9)
-            //addq
-            // ROM[0] = 8'b01100000;
-
-            //subq
-            // ROM[0] = 8'b01100001;
-
-            //andq 
-            // ROM[0] = 8'b01100010;
-
-            //xorq
-            // ROM[0] = 8'b01100011;
-
-        // ROM[1] = 8'b01011001;
-
-        //jXX (7:0) (dest. = 985)
-        // ROM[0] = 8'b01110000;
-        // ROM[1] = 8'b11011001;
-        // ROM[2] = 8'b00000011;
-        // ROM[3] = 8'b00000000;
-        // ROM[4] = 8'b00000000;
-        // ROM[5] = 8'b00000000;
-        // ROM[6] = 8'b00000000;
-        // ROM[7] = 8'b00000000;
-        // ROM[8] = 8'b00000000;
-
-        //call (8:0) (dest. = 100)
-        // ROM[0] = 8'b10000000;
-        // ROM[1] = 8'b01100100;
-        // ROM[2] = 8'b00000000;
-        // ROM[3] = 8'b00000000;
-        // ROM[4] = 8'b00000000;
-        // ROM[5] = 8'b00000000;
-        // ROM[6] = 8'b00000000;
-        // ROM[7] = 8'b00000000;
-        // ROM[8] = 8'b00000000;
-
-        //ret (9:0) 
-        // ROM[0] = 8'b10010000;
-
-        //pushq (10:0) (8 & F)
-        // ROM[0] = 8'b10100000;
-        // ROM[1] = 8'b10001111;
-
-        //popq (11:0) (3 & F)
-        // ROM[0] = 8'b10110000;
-        // ROM[1] = 8'b00111111;
+        //write the instructions that need to be performed
     end
     
-    always @ (posedge clk) begin
-        mem_error = 0;
+    always @ (*) begin
+        imem_error = 0;
         func_error = 0;
         halt = 0;
         nop = 0;
         if (PC >= 1024 || PC < 0) begin 
-            mem_error = 1;
+            imem_error = 1;
         end
-        if (mem_error == 0) begin 
+        if (imem_error == 0) begin 
             icode = ROM[PC][7:4];
             ifun = ROM[PC][3:0];
             case (icode)
