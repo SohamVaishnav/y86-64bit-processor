@@ -86,10 +86,15 @@ module processor(
                 endcase
             end
             4'b1000 : begin //call
-///left to fill !!
+                decode_reg_block S2(rA, 4'b0100, valA, valB, 0, reg_error, 64'bx); //decode stage
+                execute_block S3(valA, valB, valC, icode, ifun, valE, cnd, SF, ZF, OF); //execute stage 
+                memory S4(valE, 1, valP, clk, valM, dmem_error); //memory stage 
+                decode_reg_block S5(rA, 4'b0100, valA, valB, 1, reg_error, valE); //write_back stage 
+                PC_updated = valC;
             end
             4'b1001 : begin //ret 
-// left to fill !!
+                decode_reg_block S3(rA, 4'b0100, valA, valB, 0, reg_error, 64'bx); //decode stage 
+                execute_block S4(valA, valB, valC, icode, ifun, valE, cnd, SF, ZF, OF);
             end
             4'b1010 : begin //pushq 
                 decode_reg_block S2(rA, 4'b0100, valA, valB, 0, reg_error, 64'bx); //decode stage
@@ -101,12 +106,13 @@ module processor(
             4'b1011 : begin //popq
                 decode_reg_block S2(rA, 4'b0100, valA, valB, 0, reg_error, 64'bx); //decode stage
                 execute_block S3(valA, valB, valC, icode, ifun, valE, cnd, SF, ZF, OF); //execute stage
-                memory S4(valE, 0, valA, clk, valM, dmem_error); //memory stage
+                memory S4(valA, 0, valA, clk, valM, dmem_error); //memory stage
                 decode_reg_block S5(rA, 4'b0100, valA, valB, 1, reg_error, valE); //write_back stage
                 decode_reg_block S6(rA, rA, valA, valB, 1, reg_error, valM); //write_back stage
                 PC_updated = valP;
             end
             default: begin 
+                
                 func_error = 1;
             end
             endcase
