@@ -1,12 +1,17 @@
-module decode_reg_block(ra,rb,vala,valb,write,err,data_in);
+module decode_reg_block(
+    input clk, halt, nop, 
+    input [3:0] icode, ifun, 
+    input [3:0] rA, rB, 
+    input write_enable, 
+    input [63:0] valE, valM, 
+    output reg [63:0] valA, valB, 
+    output reg reg_error, 
+    output reg func_error
+);
 
-input [3:0] ra,rb;
-input write;
-input [3:0] data_in;
-output reg [63:0] vala,valb;
-output reg err;
-
-reg [63:0] storage [14:0];
+reg [63:0] storage [15:0];
+reg [3:0] address;
+reg [63:0] data_in;
 
 initial
 begin
@@ -25,6 +30,7 @@ begin
     storage[12] = 4'b1110; //%r12
     storage[13] = 4'b0111; //%r13
     storage[14] = 4'b0101; //%r14
+    storage[15] = 4'bx; //no register -> F
 end
 
 always@(*)
@@ -56,5 +62,54 @@ begin
     end
 end
 
+always @ (negedge clk) begin //write_back stage operations 
+    reg_error = 1;
+    func_error = 0;
+    case (icode)
+    (4'b0010), (4'b0011), (4'b0110) : begin //rrmovq, cmovxx, irmovq, OPq
+    //here rB is the address and valE is input data 
+        address = rB;
+        data_in = valE;
+        if (address < 1024 && address >= 0) begin 
+            reg_error = 0;
+            if (write_enable == 1) begin 
+                storage[address] = data_in;
+            end
+        end
+    end
+    4'b0101 : begin //mrmovq 
+    //here rB is the address and valM is input data 
+        address = rB;
+        data_in = valM;
+        if (address < 1024 && address >= 0) begin 
+            reg_error = 0;
+            if (write_enable == 1) begin 
+                storage[address] = data_in;
+            end
+        end
+    end
+    (4'b1000), (4'b1010) : begin //call or pushq
+    //here %rsp is the address and valE is input data 
+        address = 4'b0100; 
+        data_in = valE;
+        if (address < 1024 && address >= 0) begin 
+            reg_error = 0;
+            if (write_enable == 1) begin 
+                storage[address] = data_in;
+            end
+        end
+    end 
+    (4'b1001), (4'b1011) : begin //ret or popq
+    //here rA, %rsp are the addresses and valM, valE are the input datas
+        if (rA < 1024 && rA >= 0) begin 
+            reg_error = 0;
+            if (write_back == 1) begin 
+                storage[4'b0100] = valE;
+                storage[rA] = valM;
+            end
+        end
+    end
+    endcase 
+end
 
 endmodule
