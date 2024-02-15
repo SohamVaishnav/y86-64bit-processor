@@ -1,8 +1,15 @@
+`include "add_sub_1_bit.v"
+`include "add_sub_64_bit.v"
+`include "and_1_bit.v"
+`include "and_64_bit.v"
+`include "xor_1_bit.v"
+`include "xor_64_bit.v"
+
 module execute_block(vala,valb,valc,icode,ifun,vale,cnd,SF,ZF,OF);
 
 input [63:0] vala,valb,valc;
 input [3:0] icode,ifun;
-output reg [62:0] vale;
+output reg [63:0] vale;
 output reg cnd,SF,ZF,OF;
 
 /*reg SF,ZF,OF;*/
@@ -10,7 +17,8 @@ reg z = 0;
 reg nz = 1;
 
 reg [63:0] p = 4'b1000;
-wire [62:0] r1,r2,r3,r4,r5,r6,r7,r8,r9;
+wire [62:0] r1,r2,r3,r6,r7,r8,r9;
+wire [63:0] r4,r5;
 wire of1,of2,of3,of6,of7,of8,of9,sf1,sf2,sf3,sf6,sf7,sf8,sf9;
 
 add_sub_64_bit m1(.a(valb),.b(p),.m(nz),.sum(r1),.over(of1),.sign(sf1)); /* valb - 8 */
@@ -28,6 +36,10 @@ always@(*)
 begin
 if(icode == 2)
 begin
+    if(ifun == 0)
+    begin 
+        vale <= valc;
+    end
     if(ifun == 1)
     begin
         cnd = (SF^OF)|ZF;
@@ -55,7 +67,7 @@ begin
 end
 else if(icode == 3)
 begin
-    vale <= r3;
+    vale <= valc;
     OF <= of3;
     SF <= sf3;
     if(r3 == 0)
@@ -153,6 +165,10 @@ begin
 end
 else if(icode == 7)
 begin
+    if(ifun == 0)
+    begin 
+        vale <= valc;
+    end
     if(ifun == 1)
     begin
         cnd <= (SF^OF)|ZF;
@@ -208,10 +224,10 @@ begin
 end
 else if(icode == 10)
 begin
-    vale <= r9;
-    OF <= of9;
-    SF <= sf9;
-    if(r9 == 0)
+    vale <= r1;
+    OF <= of1;
+    SF <= sf1;
+    if(r1 == 0)
     begin
         ZF <= 1;
     end
@@ -222,10 +238,10 @@ begin
 end
 else
 begin
-    vale <= r8;
-    OF <= of8;
-    SF <= sf8;
-    if(r8 == 0)
+    vale <= r2;
+    OF <= of2;
+    SF <= sf2;
+    if(r2 == 0)
     begin
         ZF <= 1;
     end
