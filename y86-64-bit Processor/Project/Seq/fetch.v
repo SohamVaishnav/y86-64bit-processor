@@ -20,13 +20,19 @@ module fetch(
         //write the instructions that need to be performed
     end
     
-    always @ (*) begin
+    
+    always @ (posedge clk) begin
         imem_error = 0;
         func_error = 0;
         halt = 0;
         nop = 0;
         if (PC >= 1024 || PC < 0) begin 
             imem_error = 1;
+            icode = 4'bx;
+            ifun = 4'bx;
+            rA = 4'bx;
+            rB = 4'bx;
+            halt = 1;
         end
         if (imem_error == 0) begin 
             icode = ROM[PC][7:4];
@@ -84,6 +90,7 @@ module fetch(
                 end
                 default: begin 
                     func_error = 1;
+                    nop = 1;
                 end
             endcase
         end
