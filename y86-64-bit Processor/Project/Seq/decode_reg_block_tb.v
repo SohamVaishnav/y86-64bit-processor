@@ -1,25 +1,47 @@
 module decode_reg_block_tb;
 
-reg read,write;
-reg [3:0] ra,rb;
-reg [3:0] data_in;
-wire [3:0] vala,valb;
-wire err;
+reg clk;
+reg write_enable;
+reg [3:0] rA, rB;
+reg [3:0] icode, ifun;
+reg [63:0] valE, valM;
 
-decode_reg_block dut(.read(read),.write(write),.data_in(data_in),.ra(ra),.rb(rb),.vala(vala),.valb(valb),.err(err));
+wire [63:0] valA, valB;
+wire reg_error;
+
+decode_reg_block dut(clk, icode, ifun, rA, rB, write_enable, valE, valM, valA, valB, reg_error);
 
 initial
 begin
-       read = 0; write = 1; rb = 4'b0011 ; data_in = 4'b1011;
-    #5 read = 0; write = 1; rb = 4'b0101; data_in = 4'b0001;
-    #5 read = 0; write = 1; rb = 4'b1101; data_in = 4'b0110;
-    #5 read = 1; write = 0; ra = 4'b0101; rb = 4'b1101; data_in =4'bxxxx;
-    #5 read = 1; write = 1; rb = 4'b1101; data_in = 4'b0110;
-    #5 read = 1; write = 0; ra = 4'b0011; rb = 4'b1101; data_in = 4'bxxxx;
-    #5 read = 0; write = 1; rb = 4'b1111; data_in = 4'b0100;
-    #5 read = 1; write = 0; ra = 4'b1111; rb = 4'b1000; data_in = 4'b1110;
-    #5 read = 1; write = 0; ra = 4'b0001; rb = 4'b1111; data_in = 4'b0110;
+    $dumpfile("decode_out.vcd");
+    $dumpvars(0, decode_reg_block_tb);
+    $monitor("icode = %d, ifun = %d, rA = %d, rB = %d, we = %d, E = %0d, M = %0d, A = %0d, B = %0d", 
+    icode, ifun, rA, rB, write_enable, valE, valM, valA, valB);
+    
+    #20 write_enable = 0;
+    
+    #20 icode = 0; ifun = 0;
+    rA = 4; rB = 7; 
+
+    #20 icode = 1; ifun = 0;
+    rA = 11; rB = 8;
+
+    #20 icode = 2; ifun = 0;
+    rA = 12; rB = 13;
+
+    #20 icode = 2; ifun = 2;
+    rA = 0; rB = 5;
+
+    #20 icode = 3; ifun = 0;
+    rA = 12; rB = 9;
+
+    #20 icode = 4; ifun = 0;
+    rA = 1; rB = 14;
+
+    #20 icode = 10; ifun = 0;
+    rA = 7; rB = 6;
+
+    #20 $finish;
+
 end
-
-
 endmodule
