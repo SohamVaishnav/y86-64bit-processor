@@ -18,7 +18,7 @@ begin
     storage[1] = 64'b1110; //%rcx
     storage[2] = 64'b1011; //%rdx
     storage[3] = 64'b1111; //%rbx
-    storage[4] = 64'd2047; //%rsp -> points at the top of the stack which is at memory location 2047
+    storage[4] = 64'd1023; //%rsp -> points at the top of the stack which is at memory location 1023
     storage[5] = 64'b1010; //%rbp
     storage[6] = 64'b0001; //%rsi
     storage[7] = 64'b0010; //%rdi
@@ -67,11 +67,6 @@ begin
             valA = storage[4];
             valB = storage[4];
             reg_error = 0;
-        end
-        else if ((icode == 5)) 
-        begin 
-            valB = storage[rA];
-            valA = storage[rB];
         end
         else
         begin
@@ -134,18 +129,19 @@ always @ (negedge clk) begin //write_back stage operations
             PC_updated = valP; 
         end
     end 
-    4'b1001 : begin //ret 
-        storage[4'b0100] = valE;
-        PC_updated = valM;
-    end
-    4'b1011 : begin //popq
+    (4'b1001), (4'b1011) : begin //ret or popq
         if (rA < 15 && rA >= 0) begin  
             storage[4'b0100] = valE;
             storage[rA] = valM;
             reg_error = 0;
         end
         else reg_error = 1;
-        PC_updated = valP;
+        if (icode == 4'b1001) begin 
+            PC_updated = valM;
+        end
+        else begin 
+            PC_updated = valP;
+        end
     end
     4'b0111 : begin //jXX 
         if (ifun == 0) begin 

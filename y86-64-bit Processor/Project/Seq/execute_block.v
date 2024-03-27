@@ -26,8 +26,8 @@ add_sub_64_bit m2(.a(valb),.b(p),.m(z),.sum(r2),.over(of2),.sign(sf2)); /* valb 
 add_sub_64_bit m3(.a(valc),.b(valb),.m(z),.sum(r3),.over(of3),.sign(sf3)); /* valb + valc */
 and_64_bit a3(.a(vala),.b(valb),.c(r4)); /* vala and valb */
 xor_64_bit a4(.a(vala),.b(valb),.c(r5)); /* vala xor valb */
-add_sub_64_bit m6(.a(vala),.b(valb),.m(z),.sum(r6),.over(of6),.sign(sf6)); /* vala + valb */
-add_sub_64_bit m7(.a(vala),.b(valb),.m(nz),.sum(r7),.over(of7),.sign(sf7)); /* vala - valb */
+add_sub_64_bit m6(.a(valb),.b(vala),.m(z),.sum(r6),.over(of6),.sign(sf6)); /* valb + vala */
+add_sub_64_bit m7(.a(valb),.b(vala),.m(nz),.sum(r7),.over(of7),.sign(sf7)); /* valb - vala */
 add_sub_64_bit m8(.a(vala),.b(p),.m(z),.sum(r8),.over(of8),.sign(sf8)); /* vala + 8 */
 add_sub_64_bit m9(.a(vala),.b(p),.m(nz),.sum(r9),.over(of9),.sign(sf9)); /* vala - 8 */
 
@@ -36,11 +36,12 @@ always@(*)
 begin
 if(icode == 2)
 begin
+    vale <= vala;
     if(ifun == 0)
-    begin 
-        vale <= valc;
+    begin
+        cnd = 0;
     end
-    if(ifun == 1)
+    else if(ifun == 1)
     begin
         cnd = (SF^OF)|ZF;
     end
@@ -58,11 +59,11 @@ begin
     end
     else if(ifun == 5)
     begin
-        cnd = SF^OF;
+        cnd = ~(SF^OF);
     end
     else
     begin
-        cnd   = (SF^OF)|ZF;
+        cnd   = ~((SF^OF)|ZF);
     end
 end
 else if(icode == 3)
@@ -158,6 +159,7 @@ begin
         begin
             ZF <= 1;
         end
+        else
         begin
         ZF <=0;
     end
@@ -168,6 +170,7 @@ begin
     if(ifun == 0)
     begin 
         vale <= valc;
+        cnd <= 1;
     end
     if(ifun == 1)
     begin
@@ -187,11 +190,11 @@ begin
     end
     else if(ifun == 5)
     begin
-        cnd <= SF^OF;
+        cnd <= ~(SF^OF);
     end
     else
     begin
-        cnd <= (SF^OF)|ZF;
+        cnd <= ~((SF^OF)|ZF);
     end
 end
 else if(icode == 8)

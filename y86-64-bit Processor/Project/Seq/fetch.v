@@ -1,6 +1,6 @@
 module fetch(
     input [63:0] PC,
-    input clk,
+    input clk, 
     output reg [3:0] icode,
     output reg [3:0] ifun,
     output reg [3:0] rA,
@@ -8,8 +8,7 @@ module fetch(
     output reg [63:0] valC, 
     output reg [63:0] valP,
     output reg imem_error, 
-    output reg func_error,
-    output reg halt, nop
+    output reg func_error
 );
     reg [7:0] ROM [1023:0];
     reg [7:0] icode_ifun;
@@ -18,32 +17,32 @@ module fetch(
     initial begin 
     //Instruction memory 
         //write the instructions that need to be performed
+        $readmemb("4.txt", ROM);
     end
-    
     
     always @ (posedge clk) begin
         imem_error = 0;
         func_error = 0;
-        halt = 0;
-        nop = 0;
-        if (PC >= 1024 || PC < 0) begin 
+        // halt = 0;
+        // nop = 0;
+        if (PC >= 1024 || PC < 0 && PC != 64'bx) begin 
             imem_error = 1;
             icode = 4'bx;
             ifun = 4'bx;
             rA = 4'bx;
             rB = 4'bx;
-            halt = 1;
+            // halt = 1;
         end
         if (imem_error == 0) begin 
             icode = ROM[PC][7:4];
             ifun = ROM[PC][3:0];
             case (icode)
                 4'b0000 : begin //halt
-                    halt = 1;
+                    // halt = 1;
                     valP = PC + 1;
                 end 
                 4'b0001 : begin //nop
-                    nop = 1;
+                    // nop = 1;
                     valP = PC + 1;
                 end
                 4'b0010 : begin //cmovxx and rrmovq
@@ -89,8 +88,9 @@ module fetch(
                     valP = PC+2; 
                 end
                 default: begin 
+                    if (icode != 4'bx && ifun != 4'bx)
                     func_error = 1;
-                    nop = 1;
+                    // nop = 1;
                 end
             endcase
         end

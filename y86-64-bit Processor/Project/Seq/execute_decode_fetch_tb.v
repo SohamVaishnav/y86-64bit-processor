@@ -13,6 +13,7 @@ reg [63:0] PC;
     wire func_error;
     wire halt, nop;
     wire [63:0] valA,valB;
+    wire [63:0] PC_updated;
 
     reg write_enable;
     wire reg_error;
@@ -22,7 +23,7 @@ reg [63:0] PC;
 
 fetch f1(.icode(icode),.ifun(ifun),.rA(rA),.rB(rB),.valC(valC),.valP(valP),.imem_error(imem_error),.func_error(func_error),.halt(halt),.nop(nop),.clk(clk),.PC(PC));
 
-decode_reg_block d1(clk, icode, ifun, rA, rB, 1'b0, valE, 64'bx, valA, valB, reg_error);
+decode_reg_block d1(clk, 1'b0, icode, ifun, rA, rB, 1'b0, valE, 64'bx, valP, valC, valA, valB, PC_updated, reg_error);
 
 execute_block e1(.vala(valA),.valb(valB),.valc(valC),.icode(icode),.ifun(ifun),.vale(valE),.cnd(cnd),.SF(SF),.ZF(ZF),.OF(OF));
 

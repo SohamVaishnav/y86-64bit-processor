@@ -14,6 +14,7 @@ module fetch_decode_tb;
     wire halt, nop;
     wire [63:0] valA, valB;
     wire reg_error;
+    wire [63:0] PC_updated;
 
     reg write_enable;
 
@@ -21,7 +22,7 @@ module fetch_decode_tb;
 
 fetch f1(.icode(icode),.ifun(ifun),.rA(rA),.rB(rB),.valC(valC),.valP(valP),.imem_error(imem_error),.func_error(func_error),.halt(halt),.nop(nop),.clk(clk),.PC(PC));
 
-decode_reg_block d1(clk, icode, ifun, rA, rB, 1'b0, 64'bx, 64'bx, valA, valB, reg_error);
+decode_reg_block d1(clk, 1'b0, icode, ifun, rA, rB, 1'b0, 64'bx, 64'bx, valP, valC, valA, valB, PC_updated, reg_error);
 
 initial
 begin
